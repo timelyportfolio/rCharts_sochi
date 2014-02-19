@@ -50,6 +50,7 @@ h4 {
 I love to see [rCharts](http://rcharts.io) in the wild, so [this tweet from @GjTch](https://twitter.com/GjTch/statuses/436015015183663104)
 
 <blockquote class="twitter-tweet" lang="en"><p>Sochi and sankey diagram with <a href="https://twitter.com/search?q=%23rstats&amp;src=hash">#rstats</a> and <a href="https://twitter.com/search?q=%23rCharts&amp;src=hash">#rCharts</a> site: <a href="http://t.co/NMVjcHKD3c">http://t.co/NMVjcHKD3c</a></p>&mdash; Guib. Tch (@GjTch) <a href="https://twitter.com/GjTch/statuses/436015015183663104">February 19, 2014</a></blockquote>
+<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
 
 inspired me to spend a couple minutes to demonstrate how quickly we can iterate through interactive charts to find what we like best.  With [slidify](http://slidify.org) combined with [rCharts](http://rcharts.io), I can even document as I iterate for a very rapid exploratory workflow.
 
@@ -83,6 +84,7 @@ When I saw the original, I felt like the Total seemed redundant and a little str
 
 
 ```r
+library(rCharts)
 #first Sankey look
 sankeyPlot <- rCharts$new()
 #We need to tell R where the Sankey library is.
@@ -110,7 +112,7 @@ assets/fig/unnamed-chunk-3.html
 ' scrolling='no' seamless
 class='rChart http://timelyportfolio.github.io/rCharts_d3_sankey/ '
 id=iframe-
-chart1ea4200541a
+chart21f01ee01ce1
 ></iframe>
 <style>iframe.rChart{ width: 100%; height: 400px;}</style>
 
@@ -136,7 +138,7 @@ assets/fig/unnamed-chunk-4.html
 ' scrolling='no' seamless
 class='rChart http://timelyportfolio.github.io/rCharts_d3_sankey/ '
 id=iframe-
-chart1ea4200541a
+chart21f01ee01ce1
 ></iframe>
 <style>iframe.rChart{ width: 100%; height: 400px;}</style>
 
@@ -160,7 +162,7 @@ assets/fig/unnamed-chunk-5.html
 ' scrolling='no' seamless
 class='rChart http://timelyportfolio.github.io/rCharts_d3_sankey/ '
 id=iframe-
-chart1ea4200541a
+chart21f01ee01ce1
 ></iframe>
 <style>iframe.rChart{ width: 100%; height: 400px;}</style>
 
@@ -173,17 +175,17 @@ I was happy with Look 3 but I just had to try one last look.  In this one, Total
 ```r
 #for another look make total a target for medals
 mm3 <- ddply(
-  subset(mm2, target != "Total"),
-  .(source),
+  subset(mm2, source != "Total"),
+  .(target),
   summarize,
   value = sum(value)
 )
-mm3$target <- mm3$source
 mm3$source <- "Total"
 mm3 <- rbind(
-  subset(mm2, target != "Total"),
+  subset(mm, target != "Total"),
   mm3
 )
+#colnames(mm3)[1:2] <- c("source","target")
 
 sankeyPlot$params$data <- mm3
 sankeyPlot
@@ -194,7 +196,7 @@ assets/fig/unnamed-chunk-6.html
 ' scrolling='no' seamless
 class='rChart http://timelyportfolio.github.io/rCharts_d3_sankey/ '
 id=iframe-
-chart1ea4200541a
+chart21f01ee01ce1
 ></iframe>
 <style>iframe.rChart{ width: 100%; height: 400px;}</style>
 
