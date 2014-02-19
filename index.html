@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>rCharts Sankeys of 2014 Sochi Olympics Medals</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width">
+  <link rel="icon" type="image/png" href="favicon.ico">
+  <style>
+  body {
+    padding-top: 60px;
+    padding-bottom: 40px;
+  }
+  </style>
+  
+<link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/css/bootstrap.no-responsive.no-icons.min.css" rel="stylesheet">
+<!-- <link rel="stylesheet" href="/css/bootstrap.min.css"> -->
+<link  rel="stylesheet" 
+    href="http://netdna.bootstrapcdn.com/font-awesome/2.0/css/font-awesome.css">
+  <link rel="stylesheet" href="libraries/frameworks/bootstrap/css/bootstrap-responsive.min.css">
+  
+  <link rel="stylesheet" href="libraries/frameworks/bootstrap/css/main.css">
+  <link rel="stylesheet" href="libraries/highlighters/prettify/css/twitter-bootstrap.css" />
+  <script src="libraries/frameworks/bootstrap/js/vendor/modernizr-2.6.1-respond-1.1.0.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+  <script>window.jQuery || document.write('<script src="libraries/frameworks/bootstrap/js/vendor/jquery-1.8.2.min.js"><\/script>')</script>
+    <link rel=stylesheet href="http://fonts.googleapis.com/css?family=Raleway:300"></link>
+<link rel=stylesheet href="http://fonts.googleapis.com/css?family=Oxygen"></link>
+
+  
+</head>
+<body>
+   <!--[if lt IE 7]>
+     <p class="chromeframe">You are using an outdated browser. 
+       <a href="http://browsehappy.com/">Upgrade your browser today</a> or 
+       <a href="http://www.google.com/chromeframe/?redirect=true"> 
+         install Google Chrome Frame
+       </a> to better experience this site.
+    </p>
+   <![endif]-->
+   <!-- Ref: http://twitter.github.com/bootstrap/examples/hero.html -->
+   
+    <div class="container">
+      
+<style>
+iframe.rChart{
+  height: 700px !important;
+}
+
+body{
+  font-family: 'Oxygen', sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+h1,h2,h3,h4 {
+  font-family: 'Raleway', sans-serif;
+}
+
+.container { width: 900px; }
+
+h3 {
+  background-color: #D4DAEC;
+  text-indent: 100px; 
+}
+
+h4 {
+  text-indent: 100px;
+}
+</style>
+  
+
+<p><a href="https://github.com/timelyportfolio/rCharts_sochi"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a></p>
+
+<h1>rCharts Sankeys of 2014 Sochi Olympics Medals</h1>
+
+<p>I love to see <a href="http://rcharts.io">rCharts</a> in the wild, so <a href="https://twitter.com/GjTch/statuses/436015015183663104">this tweet from @GjTch</a></p>
+
+<blockquote class="twitter-tweet" lang="en"><p>Sochi and sankey diagram with <a href="https://twitter.com/search?q=%23rstats&amp;src=hash">#rstats</a> and <a href="https://twitter.com/search?q=%23rCharts&amp;src=hash">#rCharts</a> site: <a href="http://t.co/NMVjcHKD3c">http://t.co/NMVjcHKD3c</a></p>&mdash; Guib. Tch (@GjTch) <a href="https://twitter.com/GjTch/statuses/436015015183663104">February 19, 2014</a></blockquote>
+
+<p>inspired me to spend a couple minutes to demonstrate how quickly we can iterate through interactive charts to find what we like best.  With <a href="http://slidify.org">slidify</a> combined with <a href="http://rcharts.io">rCharts</a>, I can even document as I iterate for a very rapid exploratory workflow.</p>
+
+<h3>Get Data</h3>
+
+<p><small class = "text-muted"><a href="https://gist.github.com/ramnathv/4b810adae24f168d4330">Thanks Ramnath</a></small></p>
+
+<pre><code class="r">library(XML); library(reshape2); library(plyr)
+options(stringsAsFactors = F)
+standings = readHTMLTable(
+  &#39;http://www.sochi2014.com/en/medal-standings&#39;,
+  which = 1,
+  colClasses = c(&#39;character&#39;, &#39;character&#39;, rep(&#39;numeric&#39;, 4)),
+)
+
+standings_m = melt(
+  subset(standings, Total &gt; 0),
+  id = c(&#39;Country&#39;, &#39;Rank&#39;),
+  variable.name = &#39;Medal&#39;,
+  value.name = &#39;Count&#39;
+)
+mm &lt;- subset(standings_m,select=c(Country, Medal, Count))
+colnames(mm) &lt;- c(&quot;target&quot;,&quot;source&quot;,&quot;value&quot;)
+</code></pre>
+
+<h3>Original Look</h3>
+
+<p>When I saw the original, I felt like the Total seemed redundant and a little strange.</p>
+
+<pre><code class="r">#first Sankey look
+sankeyPlot &lt;- rCharts$new()
+#We need to tell R where the Sankey library is.
+#and fortunately we can use the Internet
+sankeyPlot$setLib(&#39;http://timelyportfolio.github.io/rCharts_d3_sankey/&#39;)
+#since chart.html is in layouts/chart.html rCharts knows where it is
+#so we don&#39;t have to do this step
+#sankeyPlot$setTemplate(script = &quot;rCharts_d3_sankey-gh-pages/layouts/chart.html&quot;)
+sankeyPlot$set(
+  data = mm,
+  nodeWidth = 15,
+  nodePadding = 10,
+  layout = 32,
+  width = 900,
+  height = 600
+)
+#to make dev branch happy
+#if not using newest dev then ignore
+sankeyPlot$setTemplate(afterScript = &#39;&lt;script&gt;&lt;/script&#39;)
+sankeyPlot
+</code></pre>
+
+<iframe src='
+assets/fig/unnamed-chunk-3.html
+' scrolling='no' seamless
+class='rChart http://timelyportfolio.github.io/rCharts_d3_sankey/ '
+id=iframe-
+chart1ea4200541a
+></iframe>
+
+<style>iframe.rChart{ width: 100%; height: 400px;}</style>
+
+<h3>Sankey Look 2</h3>
+
+<p>So my first thought was to make the Total a target with Countries as a source.</p>
+
+<pre><code class="r">#factor from reshape even though stringsAsFactors=F
+#convert to character
+#then make total a target for countries
+mm$source &lt;- as.character(mm$source)
+mm[which(mm$source==&quot;Total&quot;),][,1:3] &lt;- mm[which(mm$source==&quot;Total&quot;),][,c(2,1,3)]
+
+sankeyPlot$params$data &lt;- mm
+sankeyPlot
+</code></pre>
+
+<iframe src='
+assets/fig/unnamed-chunk-4.html
+' scrolling='no' seamless
+class='rChart http://timelyportfolio.github.io/rCharts_d3_sankey/ '
+id=iframe-
+chart1ea4200541a
+></iframe>
+
+<style>iframe.rChart{ width: 100%; height: 400px;}</style>
+
+<h3>Sankey Look 3</h3>
+
+<p>However, Total seemed odd when all the way to the right for my left-to-right brain.</p>
+
+<pre><code class="r">#for little different look
+#change total to be on right
+mm2 &lt;- mm
+colnames(mm2)[1:2] &lt;- c(&quot;source&quot;,&quot;target&quot;)
+sankeyPlot$params$data &lt;- mm2
+sankeyPlot
+</code></pre>
+
+<iframe src='
+assets/fig/unnamed-chunk-5.html
+' scrolling='no' seamless
+class='rChart http://timelyportfolio.github.io/rCharts_d3_sankey/ '
+id=iframe-
+chart1ea4200541a
+></iframe>
+
+<style>iframe.rChart{ width: 100%; height: 400px;}</style>
+
+<h3>Sankey Look 4</h3>
+
+<p>I was happy with Look 3 but I just had to try one last look.  In this one, Total is source with Medals target.  Strangely (I have not explored), Silver is 73 while Bronze and Gold are 75.  This does not make sense, but I will leave to someone else to figure it out.</p>
+
+<pre><code class="r">#for another look make total a target for medals
+mm3 &lt;- ddply(
+  subset(mm2, target != &quot;Total&quot;),
+  .(source),
+  summarize,
+  value = sum(value)
+)
+mm3$target &lt;- mm3$source
+mm3$source &lt;- &quot;Total&quot;
+mm3 &lt;- rbind(
+  subset(mm2, target != &quot;Total&quot;),
+  mm3
+)
+
+sankeyPlot$params$data &lt;- mm3
+sankeyPlot
+</code></pre>
+
+<iframe src='
+assets/fig/unnamed-chunk-6.html
+' scrolling='no' seamless
+class='rChart http://timelyportfolio.github.io/rCharts_d3_sankey/ '
+id=iframe-
+chart1ea4200541a
+></iframe>
+
+<style>iframe.rChart{ width: 100%; height: 400px;}</style>
+
+<h3>Thanks</h3>
+
+<p>Thanks <a href="http://twitter.com/ramnath_vaidya">@ramnath_vaidya</a> and <a href="http://twitter.com/GjTch">@GjTch</a> and of course Mike Bostock for the d3.</p>
+
+<h3>Poke and Prod</h3>
+
+<p>Please poke and prod me at my <a href="http://github.com/timelyportfolio/rCharts_sochi">Github repo</a>.</p>
+
+<h3>Additional rCharts Sankey</h3>
+
+<p>For some additional reference on <code>rCharts</code> Sankeys, see this <a href="http://timelyportfolio.blogspot.com/search/label/sankey">set of posts</a>.</p>
+
+<p>For lots of Sankeys from lots of sources, see <a href="http://www.sankey-diagrams.com/">this site devoted to Sankey diagrams</a>.</p>
+
+    </div>
+        
+</body>
+  <script src="libraries/frameworks/bootstrap/js/vendor/bootstrap.min.js"></script>
+  <script src="libraries/frameworks/bootstrap/js/plugins.js"></script>
+  <script src="libraries/frameworks/bootstrap/js/main.js"></script>
+  <!-- Load Javascripts for Widgets -->
+  
+  <!-- Google Prettify -->
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/188.0.0/prettify.js"></script>
+  <script src='libraries/highlighters/prettify/js/lang-r.js'></script>
+  <script>
+    var pres = document.getElementsByTagName("pre");
+    for (var i=0; i < pres.length; ++i) {
+      pres[i].className = "prettyprint linenums";
+    }
+    prettyPrint();
+  </script>
+  <!-- End Google Prettify --> 
+  </html>
