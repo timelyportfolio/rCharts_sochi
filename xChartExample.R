@@ -42,54 +42,56 @@ top5 <- subset(
 
 #xCharts in rCharts dev is out of date
 #for this to work
-#need to setLib here for newest
-x1$setLib(
-  "http://timelyportfolio.github.io/rCharts_sochi/libraries/widgets/xCharts/"
-)
-#or the more aggressive
+#install this rCharts branch with update xCharts
 #require(devtools)
 #install_github("rCharts","timelyportfolio",ref="xCharts_update")
 
 x1 <- xCharts$new()
+
 x1$layer(
   Total ~ Year,
-  group = "Country",
+  groups = "Country",
   data = subset(
     medals.total,
     Country %in% top5
-  ) 
+  ),
+  type = "line-dotted"
+)
+x1$set(
+  xScale = 'linear',
+  yScale = 'linear'
 )
 x1$set(options=list(
-  xScale = 'linear',
-  yScale = 'linear',
-  type = 'line-dotted',
   axisPaddingLeft = 0,
   paddingLeft =  20,
+  paddingTop = 40,
   paddingRight =  0,
   axisPaddingRight =  0,
   axisPaddingTop =  5,
   yMin =  0,
   yMax =  40,
+  xMin = 1981,
+  xMax = 2015,
   interpolation =  "linear"
 ))
 x1$setTemplate (
   afterScript = '
   <script>
-  legend = d3.select("#" + data.dom).append("svg")
+  legend = d3.select("#" + params.id).select("svg").append("g")
     .attr("class", "legend")
     .selectAll("g")
     .data(data.main)
     .enter()
     .append("g")
     .attr("transform", function (d, i) {
-    return "translate(" + (64 + (i * 84)) + ", 0)";
+    return "translate(" + (84 + (i * 120)) + ", 0)";
   });
   
   legend.append("rect")
     .attr("width", 18)
     .attr("height", 18)
-    .attr("class", function (d, i) {
-    return "color" + i;
+    .style("fill", function (d, i) {
+      return d3.select(".color" + i + " .line").style("stroke")
   });
   
   legend.append("text")
@@ -97,7 +99,7 @@ x1$setTemplate (
     .attr("y", 9)
     .attr("dy", ".35em")
     .text(function (d, i) {
-      return data.main[i].country;
+      return data.main[i].Country;
     });
   </script>
   '

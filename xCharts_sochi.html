@@ -1,0 +1,119 @@
+<!doctype HTML>
+<meta charset = 'utf-8'>
+<html>
+  <head>
+    <link rel='stylesheet' href='http://tenxer.github.io/xcharts/css/master.css'>
+    
+    <script src='http://d3js.org/d3.v3.min.js' type='text/javascript'></script>
+    <script src='http://tenxer.github.io/xcharts/js/xcharts.min.js' type='text/javascript'></script>
+    
+    <style>
+    .rChart {
+      display: block;
+      margin-left: auto; 
+      margin-right: auto;
+      width: 800px;
+      height: 400px;
+    }  
+    </style>
+    
+  </head>
+  <body >
+    
+    <figure id = 'chart1bc888f21aa' class = 'rChart xcharts'></figure>    
+    <script type='text/javascript'>
+    var params = {
+ "x": "Year",
+"y": "Total",
+"data": {
+ "Year": [   1984,   1984,   1984,   1984,   1988,   1988,   1988,   1988,   1992,   1992,   1992,   1992,   1992,   1994,   1994,   1994,   1994,   1994,   2002,   2002,   2002,   2002,   2002,   2006,   2006,   2006,   2006,   2006,   2010,   2010,   2010,   2010,   2010,   2014,   2014,   2014,   2014,   2014 ],
+"Country": [ "Austria", "Canada", "Norway", "United States", "Austria", "Canada", "Norway", "United States", "Austria", "Canada", "Germany", "Norway", "United States", "Austria", "Canada", "Germany", "Norway", "United States", "Austria", "Canada", "Germany", "Norway", "United States", "Austria", "Canada", "Germany", "Norway", "United States", "Austria", "Canada", "Germany", "Norway", "United States", "Austria", "Canada", "Germany", "Norway", "United States" ],
+"Total": [      1,      4,      9,      8,     10,      5,      5,      6,     21,      7,     26,     20,     11,      9,     13,     24,     26,     13,     17,     17,     36,     25,     34,     23,     24,     29,     19,     25,     16,     26,     30,     23,     37,      9,     18,     15,     20,     23 ] 
+},
+"facet": null,
+"groups": "Country",
+"dom": "chart1bc888f21aa",
+"width":    800,
+"height":    400,
+"xScale": "linear",
+"yScale": "linear",
+"options": {
+ "axisPaddingLeft":      0,
+"paddingLeft":     20,
+"paddingRight":      0,
+"axisPaddingRight":      0,
+"axisPaddingTop":      5,
+"yMin":      0,
+"yMax":     40,
+"xMin":   1981,
+"xMax":   2015,
+"interpolation": "linear",
+"paddingTop":     40 
+},
+"id": "chart1bc888f21aa" 
+},
+      chartType = "line-dotted",
+      myChart
+      
+    var dataset = [];
+    params.data[Object.keys(params.data)[0]].forEach(function(d,i){
+      var tempdata = {};
+      Object.keys(params.data).map(function(key) {
+        tempdata[key] = params.data[key][i];
+      })
+      dataset.push(tempdata);
+    });
+    
+    dataset = d3.nest().key(function(d){return d[params.groups]}).entries(dataset);
+    
+    dataset.map(function(d){
+      d[params.groups] = d.key;
+      d.className =  "." + d.key;
+      d.data = d.values;
+      d.data.map(function(datum){
+        datum.x = datum[params.x];
+        datum.y = datum[params.y];
+      })
+      delete d.values;
+    })
+    
+    var data = {
+              "xScale": params.xScale,
+              "yScale": params.yScale,
+              "main": dataset
+            }
+
+    myChart  = new xChart(chartType, data, '#chart1bc888f21aa', params.options);
+      
+</script>
+    
+    
+      <script>
+      legend = d3.select("#" + params.id).select("svg").append("g")
+        .attr("class", "legend")
+        .selectAll("g")
+        .data(data.main)
+        .enter()
+        .append("g")
+        .attr("transform", function (d, i) {
+        return "translate(" + (84 + (i * 120)) + ", 0)";
+      });
+      
+      legend.append("rect")
+        .attr("width", 18)
+        .attr("height", 18)
+        .style("fill", function (d, i) {
+          return d3.select(".color" + i + " .line").style("stroke")
+      });
+      
+      legend.append("text")
+        .attr("x", 24)
+        .attr("y", 9)
+        .attr("dy", ".35em")
+        .text(function (d, i) {
+          return data.main[i].Country;
+        });
+      </script>
+          
+  </body>
+</html>
