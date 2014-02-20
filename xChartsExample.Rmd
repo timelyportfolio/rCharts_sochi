@@ -47,6 +47,7 @@ I thought it would be nice to combine two very nice resources:
 - [Ramnath Vaidyanathan's R + OpenCPU + rCharts Sochi Olympics Analysis](http://ramnathv.ocpu.io/sochi/www/)
 - [Christophe Coenraets' Ionic + xCharts Sochi Olympics Dashboard](http://coenraets.org/blog/2014/02/interactive-mobile-dashboard-d3-charts/)
 
+This is just a quick example.  With a little ambition + rCharts + slidify, we could easily create an entire dashboard similar to Christophe's beauty.  Thanks so much to Ramnath and Cristophe for sharing.
 
 ```{r}
 library(XML)
