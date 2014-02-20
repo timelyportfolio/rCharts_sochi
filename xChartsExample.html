@@ -167,6 +167,9 @@ x1$set(options=list(
 x1$setTemplate (
   afterScript = &#39;
   &lt;script&gt;
+  //thanks Cristophe for this js legend code
+  //minimally changed
+  //https://github.com/timelyportfolio/olympic-dashboard-d3/blob/master/www/js/dashboard1.js
   legend = d3.select(&quot;#&quot; + params.id).select(&quot;svg&quot;).append(&quot;g&quot;)
     .attr(&quot;class&quot;, &quot;legend&quot;)
     .selectAll(&quot;g&quot;)
