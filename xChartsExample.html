@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>rCharts + xCharts of Olympics Medals</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width">
+  <link rel="icon" type="image/png" href="favicon.ico">
+  <style>
+  body {
+    padding-top: 60px;
+    padding-bottom: 40px;
+  }
+  </style>
+  
+<link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/css/bootstrap.no-responsive.no-icons.min.css" rel="stylesheet">
+<!-- <link rel="stylesheet" href="/css/bootstrap.min.css"> -->
+<link  rel="stylesheet" 
+    href="http://netdna.bootstrapcdn.com/font-awesome/2.0/css/font-awesome.css">
+  <link rel="stylesheet" href="libraries/frameworks/bootstrap/css/bootstrap-responsive.min.css">
+  
+  <link rel="stylesheet" href="libraries/frameworks/bootstrap/css/main.css">
+  <link rel="stylesheet" href="libraries/highlighters/prettify/css/twitter-bootstrap.css" />
+  <script src="libraries/frameworks/bootstrap/js/vendor/modernizr-2.6.1-respond-1.1.0.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+  <script>window.jQuery || document.write('<script src="libraries/frameworks/bootstrap/js/vendor/jquery-1.8.2.min.js"><\/script>')</script>
+    <link rel=stylesheet href="http://fonts.googleapis.com/css?family=Raleway:300"></link>
+<link rel=stylesheet href="http://fonts.googleapis.com/css?family=Oxygen"></link>
+
+  
+</head>
+<body>
+   <!--[if lt IE 7]>
+     <p class="chromeframe">You are using an outdated browser. 
+       <a href="http://browsehappy.com/">Upgrade your browser today</a> or 
+       <a href="http://www.google.com/chromeframe/?redirect=true"> 
+         install Google Chrome Frame
+       </a> to better experience this site.
+    </p>
+   <![endif]-->
+   <!-- Ref: http://twitter.github.com/bootstrap/examples/hero.html -->
+   
+    <div class="container">
+      
+<style>
+body{
+  font-family: 'Oxygen', sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+h1,h2,h3,h4 {
+  font-family: 'Raleway', sans-serif;
+}
+
+.container { width: 900px; }
+
+h3 {
+  background-color: #D4DAEC;
+  text-indent: 100px; 
+}
+
+h4 {
+  text-indent: 100px;
+}
+</style>
+  
+
+<p><a href="https://github.com/timelyportfolio/rCharts_sochi"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a></p>
+
+<h1>rCharts + xCharts of Olympics Medals</h1>
+
+<p>I thought it would be nice to combine two very nice resources:</p>
+
+<ul>
+<li><a href="http://ramnathv.ocpu.io/sochi/www/">Ramnath Vaidyanathan&#39;s R + OpenCPU + rCharts Sochi Olympics Analysis</a></li>
+<li><a href="http://coenraets.org/blog/2014/02/interactive-mobile-dashboard-d3-charts/">Christophe Coenraets&#39; Ionic + xCharts Sochi Olympics Dashboard</a></li>
+</ul>
+
+<iframe src='
+assets/fig/unnamed-chunk-2.html
+' scrolling='no' seamless
+class='rChart xcharts '
+id=iframe-
+chart1bc86ed69aa
+></iframe>
+
+<h3>R Code</h3>
+<pre><code class="r">library(XML)
+library(reshape2)
+library(plyr)
+#source directly the code from Ramnath&#39;s data gatherer
+source(&#39;https://raw2.github.com/ramnathv/sochi/master/R/sochi.R&#39;)
+
+medals &lt;- do.call(
+  rbind,
+  lapply(
+    c(&quot;2014&quot;, &quot;2010&quot;, &quot;2006&quot;, &quot;2002&quot;, &quot;1994&quot;, &quot;1992&quot;, &quot;1988&quot;, &quot;1984&quot;),
+    function(year) {
+      medals_year &lt;- getMedalCounts(year = year)
+      medals_year$Year &lt;- year
+      return(medals_year)
+    }
+  )
+)
+
+medals$Medal &lt;- as.character(medals$Medal)
+medals$Year &lt;- as.numeric(medals$Year)
+
+medals.total &lt;- ddply(
+  medals,
+  .(Year,Country),
+  summarize,
+  Total = sum(Count)
+)
+
+
+
+top5 &lt;- subset(
+  medals.total,Year==2010
+)[order(
+    subset(medals.total,Year==2010)$Total,
+    decreasing = TRUE
+  ),][1:5,&quot;Country&quot;]
+
+
+#xCharts in rCharts dev is out of date
+#for this to work
+#install this rCharts branch with update xCharts
+#require(devtools)
+#install_github(&quot;rCharts&quot;,&quot;timelyportfolio&quot;,ref=&quot;xCharts_update&quot;)
+
+x1 &lt;- xCharts$new()
+
+x1$layer(
+  Total ~ Year,
+  groups = &quot;Country&quot;,
+  data = subset(
+    medals.total,
+    Country %in% top5
+  ),
+  type = &quot;line-dotted&quot;
+)
+x1$set(
+  xScale = &#39;linear&#39;,
+  yScale = &#39;linear&#39;
+)
+x1$set(options=list(
+  axisPaddingLeft = 0,
+  paddingLeft =  20,
+  paddingTop = 40,
+  paddingRight =  0,
+  axisPaddingRight =  0,
+  axisPaddingTop =  5,
+  yMin =  0,
+  yMax =  40,
+  xMin = 1981,
+  xMax = 2015,
+  interpolation =  &quot;linear&quot;
+))
+x1$setTemplate (
+  afterScript = &#39;
+  &lt;script&gt;
+  legend = d3.select(&quot;#&quot; + params.id).select(&quot;svg&quot;).append(&quot;g&quot;)
+    .attr(&quot;class&quot;, &quot;legend&quot;)
+    .selectAll(&quot;g&quot;)
+    .data(data.main)
+    .enter()
+    .append(&quot;g&quot;)
+    .attr(&quot;transform&quot;, function (d, i) {
+    return &quot;translate(&quot; + (84 + (i * 120)) + &quot;, 0)&quot;;
+  });
+
+  legend.append(&quot;rect&quot;)
+    .attr(&quot;width&quot;, 18)
+    .attr(&quot;height&quot;, 18)
+    .style(&quot;fill&quot;, function (d, i) {
+      return d3.select(&quot;.color&quot; + i + &quot; .line&quot;).style(&quot;stroke&quot;)
+  });
+
+  legend.append(&quot;text&quot;)
+    .attr(&quot;x&quot;, 24)
+    .attr(&quot;y&quot;, 9)
+    .attr(&quot;dy&quot;, &quot;.35em&quot;)
+    .text(function (d, i) {
+      return data.main[i].Country;
+    });
+  &lt;/script&gt;
+  &#39;
+)
+x1
+</code></pre>
+
+
+
+<style>iframe.rChart{ width: 100%; height: 450px;}</style>
+
+    </div>
+        
+</body>
+  <script src="libraries/frameworks/bootstrap/js/vendor/bootstrap.min.js"></script>
+  <script src="libraries/frameworks/bootstrap/js/plugins.js"></script>
+  <script src="libraries/frameworks/bootstrap/js/main.js"></script>
+  <!-- Load Javascripts for Widgets -->
+  
+  <!-- Google Prettify -->
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/188.0.0/prettify.js"></script>
+  <script src='libraries/highlighters/prettify/js/lang-r.js'></script>
+  <script>
+    var pres = document.getElementsByTagName("pre");
+    for (var i=0; i < pres.length; ++i) {
+      pres[i].className = "prettyprint linenums";
+    }
+    prettyPrint();
+  </script>
+  <!-- End Google Prettify --> 
+  </html>
